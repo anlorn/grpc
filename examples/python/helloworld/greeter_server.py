@@ -29,6 +29,7 @@
 
 """The Python implementation of the GRPC helloworld.Greeter server."""
 
+import asyncio
 from concurrent import futures
 import time
 
@@ -42,8 +43,23 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 class Greeter(helloworld_pb2_grpc.GreeterServicer):
 
+
   def SayHello(self, request, context):
+
+
+    loop = asyncio.get_event_loop()
+    if loop is None:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return  loop.run_until_complete(async_func(request, context))
+
+
+def sync_func(request, context):
     return helloworld_pb2.HelloReply(message='Hello, %s!' % request.name)
+
+async def async_func(request, context):
+    return helloworld_pb2.HelloReply(message='Hello, %s!' % request.name)
+
 
 
 def serve():
