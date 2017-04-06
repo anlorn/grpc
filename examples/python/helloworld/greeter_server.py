@@ -53,12 +53,10 @@ class Greeter(helloworld_pb2_grpc.GreeterServicer):
     def SayHello(self, request, context):
 
         if asyncio.iscoroutinefunction(self.handler):
-            try:
-                loop = asyncio.get_event_loop()
-            except RuntimeError:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-            return  loop.run_until_complete(self.handler(request, context))
+            loop = asyncio.new_event_loop()
+            result = loop.run_until_complete(self.handler(request, context))
+            loop.close()
+            return result
         else:
             return self.handler(request, context)
 
